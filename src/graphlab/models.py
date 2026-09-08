@@ -15,7 +15,7 @@ def build_lr_baseline():
     return Pipeline([
         ("classifier", LogisticRegression(
             solver="lbfgs",
-            max_iter=100,
+            max_iter=1000,
             random_state=42,
             n_jobs=-1,
         )),
