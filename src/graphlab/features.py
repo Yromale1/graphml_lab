@@ -1,5 +1,6 @@
-import pandas as pd
 import networkx as nx
+import pandas as pd
+
 
 def compute_degree(G: nx.DiGraph, df: pd.DataFrame):
 

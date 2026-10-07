@@ -1,9 +1,15 @@
-import pandas as pd
-import numpy as np
-import networkx as nx
-from typing import Tuple
 
-from graphlab.features import compute_clustering, compute_degree, compute_neighborhood, compute_pagerank, compute_centrality
+import networkx as nx
+import numpy as np
+import pandas as pd
+
+from graphlab.features import (
+    compute_clustering,
+    compute_degree,
+    compute_neighborhood,
+    compute_pagerank,
+)
+
 
 def load_and_split_features(
         path: str, 
@@ -13,7 +19,7 @@ def load_and_split_features(
         txId: bool = False,
         compute: bool = False,
         G: nx.DiGraph | None = None,
-    ) -> Tuple[np.ndarray, list, np.ndarray, list, np.ndarray, list]:
+    ) -> tuple[np.ndarray, list, np.ndarray, list, np.ndarray, list]:
     """
     Load the transactions features dataset and split it into train, validation and test.
 

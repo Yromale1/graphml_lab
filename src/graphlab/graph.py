@@ -1,5 +1,6 @@
-import pandas as pd
 import networkx as nx
+import pandas as pd
+
 
 def _create_graph(edges, df_features):
     G = nx.DiGraph()
