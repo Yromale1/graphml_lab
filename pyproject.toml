@@ -14,6 +14,7 @@ dependencies = [
     "networkx",
     "matplotlib",
     "seaborn",
+    "node2vec",
 ]
 
 [tool.setuptools.packages.find]

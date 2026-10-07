@@ -1,8 +1,25 @@
-import pandas as pd
-import numpy as np
-from typing import Tuple
 
-def load_and_split_features(path: str, path_classes: str, t_val: int = 31, t_test: int = 36) -> Tuple[np.ndarray, list, np.ndarray, list, np.ndarray, list]:
+import networkx as nx
+import numpy as np
+import pandas as pd
+
+from graphlab.features import (
+    compute_clustering,
+    compute_degree,
+    compute_neighborhood,
+    compute_pagerank,
+)
+
+
+def load_and_split_features(
+        path: str, 
+        path_classes: str, 
+        t_val: int = 31, 
+        t_test: int = 36, 
+        txId: bool = False,
+        compute: bool = False,
+        G: nx.DiGraph | None = None,
+    ) -> tuple[np.ndarray, list, np.ndarray, list, np.ndarray, list]:
     """
     Load the transactions features dataset and split it into train, validation and test.
 
@@ -41,22 +58,30 @@ def load_and_split_features(path: str, path_classes: str, t_val: int = 31, t_tes
     df = df[df["class"] != 3]
 
     df = df.select_dtypes(include="number")
-    df = df.drop(columns=["txId"], errors='ignore')
+    if not txId:
+        df = df.drop(columns=["txId"], errors='ignore')
     df.dropna(inplace=True)
+
+    if compute:
+        # df = compute_centrality(G, df)
+        df = compute_degree(G, df)
+        df = compute_pagerank(G, df)
+        df = compute_neighborhood(G, df)
+        df = compute_clustering(G, df)
 
     df_train = df[df["Time step"] < t_val]
     y_train = list(df_train["class"])
-    X_train = df_train.drop(columns=["class"], errors='ignore').to_numpy()
+    X_train = df_train.drop(columns=["class"], errors='ignore')
 
     df_val = df[
         (df["Time step"] >= t_val) &
         (df["Time step"] < t_test)
     ]
     y_val = list(df_val["class"])
-    X_val = df_val.drop(columns=["class"], errors='ignore').to_numpy()
+    X_val = df_val.drop(columns=["class"], errors='ignore')
 
     df_test = df[t_test <= df["Time step"]]
     y_test = list(df_test["class"])
-    X_test = df_test.drop(columns=["class"], errors='ignore').to_numpy()
+    X_test = df_test.drop(columns=["class"], errors='ignore')
 
     return X_train, y_train, X_val, y_val, X_test, y_test
