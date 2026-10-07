@@ -19,6 +19,9 @@ jobs:
         python-version: "3.10"
     
     - name: Install Ruff
+      run: pip install ruff
+
+    - name: Run Ruff
       working-directory: src/graphlab
       run: ruff check . > pylint_report.txt || true
 
