@@ -1,0 +1,40 @@
+name: Test Notebooks
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  test-notebooks:
+    name: Run Jupyter notebooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          pip install jupyter nbconvert
+
+      - name: Execute all notebooks
+        run: |
+          set -e
+
+          for notebook in $(find notebooks -name "*.ipynb" -type f); do
+            echo "========================================"
+            echo "Running: $notebook"
+            echo "========================================"
+
+            jupyter nbconvert \
+              --to notebook \
+              --execute \
+              --ExecutePreprocessor.timeout=600 \
+              "$notebook"
+          done
