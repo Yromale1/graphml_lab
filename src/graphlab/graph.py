@@ -46,12 +46,34 @@ def build_graph(path: str, path_features: str, path_classes: str) -> nx.Graph:
     df_features = df_features[["txId", "Time step"]]
     df_features.insert(loc=2, column='class', value=df_classes['class'])
 
-    valid_nodes = set(df_features["txId"])
+    # valid_nodes = set(df_features["txId"])
 
-    df = df[
-        df["txId1"].isin(valid_nodes)
-        & df["txId2"].isin(valid_nodes)
-    ].copy()
+    # df = df[
+    #     df["txId1"].isin(valid_nodes)
+    #     & df["txId2"].isin(valid_nodes)
+    # ].copy()
+
+    time_map = df_features[["txId", "Time step"]].copy()
+    
+    df = df.merge(
+        time_map.rename(columns={"Time step": "time_tx1"}),
+        left_on="txId1",
+        right_on="txId",
+        how="left",
+    )
+
+    df = df.drop(columns="txId")
+
+    df = df.merge(
+        time_map.rename(columns={"Time step": "time_tx2"}),
+        left_on="txId2",
+        right_on="txId",
+        how="left",
+    )
+
+    df = df.drop(columns="txId")
+
+    df["Time step"] = df[["time_tx1", "time_tx2"]].max(axis=1)
 
     df = df.merge(
         df_features[['txId', 'Time step']],
@@ -101,22 +123,36 @@ def build_graph_split(path: str, path_features: str, path_classes: str, t_val: i
 
     df_features = df_features[["txId", "Time step"]]
     df_features.insert(loc=2, column='class', value=df_classes['class'])
+    df_features = df_features[df_features['class'] != 3]
 
-    valid_nodes = set(df_features["txId"])
+    # valid_nodes = set(df_features["txId"])
 
-    df = df[
-        df["txId1"].isin(valid_nodes)
-        & df["txId2"].isin(valid_nodes)
-    ].copy()
+    # df = df[
+    #     df["txId1"].isin(valid_nodes)
+    #     & df["txId2"].isin(valid_nodes)
+    # ].copy()
+
+    time_map = df_features[["txId", "Time step"]].copy()
 
     df = df.merge(
-        df_features[['txId', 'Time step']],
-        left_on='txId1',
-        right_on='txId',
-        how='left'
+        time_map.rename(columns={"Time step": "time_tx1"}),
+        left_on="txId1",
+        right_on="txId",
+        how="left",
     )
-    df = df.drop(columns=['txId'], errors='ignore')
 
+    df = df.drop(columns="txId")
+
+    df = df.merge(
+        time_map.rename(columns={"Time step": "time_tx2"}),
+        left_on="txId2",
+        right_on="txId",
+        how="left",
+    )
+
+    df = df.drop(columns="txId")
+
+    df["Time step"] = df[["time_tx1", "time_tx2"]].max(axis=1)
 
     G_train = _create_graph(
         df[df["Time step"] < t_val],
